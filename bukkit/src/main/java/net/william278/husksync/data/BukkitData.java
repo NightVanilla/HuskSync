@@ -426,7 +426,7 @@ public abstract class BukkitData implements Data {
                 final org.bukkit.Location location = new org.bukkit.Location(
                         Bukkit.getWorld(world.name()), x, y, z, yaw, pitch
                 );
-                user.getPlayer().teleport(location);
+                user.getPlayer().teleportAsync(location);
             } catch (Throwable e) {
                 throw new IllegalStateException("Failed to apply location", e);
             }
