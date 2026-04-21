@@ -35,8 +35,6 @@ import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.stream.Collectors;
-
 @Getter
 public class BukkitEventListener extends EventListener implements BukkitJoinEventListener, BukkitQuitEventListener,
         BukkitDeathEventListener, Listener {
@@ -128,8 +126,8 @@ public class BukkitEventListener extends EventListener implements BukkitJoinEven
 
         // Handle saving player data snapshots when the world saves
         plugin.runAsync(() -> super.saveOnWorldSave(event.getWorld().getPlayers()
-                .stream().map(player -> BukkitUser.adapt(player, plugin))
-                .collect(Collectors.toList())));
+                .stream().<OnlineUser>map(player -> BukkitUser.adapt(player, plugin))
+                .toList()));
     }
 
     @EventHandler(ignoreCancelled = true)

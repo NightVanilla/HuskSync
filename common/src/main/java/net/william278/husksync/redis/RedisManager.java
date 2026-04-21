@@ -153,8 +153,8 @@ public class RedisManager extends JedisPubSub {
         }
         try {
             this.unsubscribe();
-        } catch (Throwable ignored) {
-            // empty catch
+        } catch (Throwable unsubscribeError) {
+            plugin.debug("Failed to unsubscribe from Redis channels during reconnect", unsubscribeError);
         }
 
         // Make an instant subscribe if occurs any error on initialization
@@ -201,7 +201,12 @@ public class RedisManager extends JedisPubSub {
                     return;
                 }
                 final String payload = new String(redisMessage.getPayload(), StandardCharsets.UTF_8);
-                final User user = new User(UUID.fromString(payload.split("/")[0]), payload.split("/")[1]);
+                final String[] parts = payload.split("/", 2);
+                if (parts.length != 2) {
+                    plugin.debug("Ignoring malformed check-in petition payload: " + payload);
+                    return;
+                }
+                final User user = new User(UUID.fromString(parts[0]), parts[1]);
 
                 // Only release checkout if user is truly offline AND not being processed
                 final boolean isOnline = plugin.getOnlineUser(user.getUuid()).isPresent();
@@ -369,7 +374,8 @@ public class RedisManager extends JedisPubSub {
                 return;
             }
             for (String key : keys) {
-                if (jedis.get(key).equals(plugin.getServerName())) {
+                final String value = jedis.get(key);
+                if (value != null && value.equals(plugin.getServerName())) {
                     jedis.del(key);
                 }
             }
@@ -471,7 +477,8 @@ public class RedisManager extends JedisPubSub {
         final String info = getStatusDump();
         for (String line : info.split("\n")) {
             if (line.startsWith("redis_version:")) {
-                return line.split(":")[1];
+                final String[] parts = line.split(":", 2);
+                return parts.length > 1 ? parts[1].trim() : "unknown";
             }
         }
         return "unknown";
@@ -525,7 +532,11 @@ public class RedisManager extends JedisPubSub {
             plugin.debug(String.format("[%s:%s] Read reversed map bound from Redis",
                     toServer, toId));
 
-            String[] parts = new String(readData, StandardCharsets.UTF_8).split(":");
+            final String[] parts = new String(readData, StandardCharsets.UTF_8).split(":", 2);
+            if (parts.length != 2) {
+                plugin.log(Level.WARNING, "Malformed reversed map bound payload on Redis");
+                return null;
+            }
             return Map.entry(parts[0], Integer.parseInt(parts[1]));
         } catch (Throwable e) {
             plugin.log(Level.SEVERE, "An exception occurred reading reversed map bound from Redis", e);
