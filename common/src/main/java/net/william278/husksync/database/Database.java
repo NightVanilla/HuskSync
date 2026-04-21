@@ -71,10 +71,10 @@ public abstract class Database {
     @NotNull
     protected final String formatStatementTables(@NotNull @Language("SQL") String sql) {
         final Settings.DatabaseSettings settings = plugin.getSettings().getDatabase();
-        return sql.replaceAll("%users_table%", settings.getTableName(TableName.USERS))
-                .replaceAll("%user_data_table%", settings.getTableName(TableName.USER_DATA))
-                .replaceAll("%map_data_table%", settings.getTableName(TableName.MAP_DATA))
-                .replaceAll("%map_ids_table%", settings.getTableName(TableName.MAP_IDS));
+        return sql.replace("%users_table%", settings.getTableName(TableName.USERS))
+                .replace("%user_data_table%", settings.getTableName(TableName.USER_DATA))
+                .replace("%map_data_table%", settings.getTableName(TableName.MAP_DATA))
+                .replace("%map_ids_table%", settings.getTableName(TableName.MAP_IDS));
     }
 
     /**

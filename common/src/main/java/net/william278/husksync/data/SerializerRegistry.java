@@ -26,7 +26,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 public interface SerializerRegistry {
 
@@ -88,7 +87,12 @@ public interface SerializerRegistry {
      * @since 3.0
      */
     default Optional<Identifier> getIdentifier(@NotNull String key) {
-        return getSerializers().keySet().stream().filter(e -> e.toString().equals(key)).findFirst();
+        for (Identifier identifier : getSerializers().keySet()) {
+            if (identifier.toString().equals(key)) {
+                return Optional.of(identifier);
+            }
+        }
+        return Optional.empty();
     }
 
     /**
