@@ -58,10 +58,13 @@ public class DelayDataSyncer extends DataSyncer {
 
     @Override
     public void syncSaveUserData(@NotNull OnlineUser onlineUser) {
+        // Snapshot the player on the thread that owns them - this runs from the quit event, on the
+        // player's region thread on Folia (or the main thread on Spigot) - before going async for I/O.
+        final DataSnapshot.Packed snapshot = onlineUser.createSnapshot(DataSnapshot.SaveCause.DISCONNECT);
         plugin.runAsync(() -> {
             getRedis().setUserServerSwitch(onlineUser);
             saveData(
-                    onlineUser, onlineUser.createSnapshot(DataSnapshot.SaveCause.DISCONNECT),
+                    onlineUser, snapshot,
                     (user, data) -> {
                         getRedis().setUserData(user, data);
                         plugin.unlockPlayer(user.getUuid());

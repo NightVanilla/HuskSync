@@ -14,10 +14,14 @@ jobs:
     steps:
       - name: 'Checkout for CI 🛎'
         uses: actions/checkout@v6
-      - name: 'Set up JDK 25 📦'
+      - name: 'Set up JDKs (21 launcher + 25 toolchain) 📦'
         uses: actions/setup-java@v5
         with:
-          java-version: '25'
+          # 25 first so 21 (last) is the default JAVA_HOME / Gradle launcher (required by the Fabric
+          # preprocessor); the 26.1+ targets compile against the 25 toolchain.
+          java-version: |
+            25
+            21
           distribution: 'temurin'
       - name: 'Build with Gradle 🏗️'
         uses: gradle/gradle-build-action@v3

@@ -2,6 +2,7 @@ HuskSync supports the following versions of Minecraft. Since v3.7, you must down
 
 |    Minecraft    | Latest HuskSync | Java Version | Platforms     | Support Status                |
 |:---------------:|:---------------:|:------------:|:--------------|:------------------------------|
+|     26.1.2      |    _latest_     |      25      | Paper         | ✅ **Active Release**          |
 |     1.21.10     |    _latest_     |      21      | Paper         | ✅ **Active Release**          |
 |    1.21.7/8     |    _latest_     |      21      | Paper, Fabric | ✅ **August 2026**             |
 |     1.21.6      |      3.8.5      |      21      | Paper         | 🗃️ Archived (July 2025)      |

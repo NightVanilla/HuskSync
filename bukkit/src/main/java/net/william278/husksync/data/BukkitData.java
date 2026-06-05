@@ -41,7 +41,6 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
@@ -576,24 +575,20 @@ public abstract class BukkitData implements Data {
 
         @NotNull
         public static BukkitData.Attributes adapt(@NotNull Player player, @NotNull HuskSync plugin) {
-            if (!Bukkit.isPrimaryThread()) {
-                try {
-                    return Bukkit.getScheduler().callSyncMethod((Plugin) plugin, () -> adapt(player, plugin)).get();
-                } catch (Exception e) {
-                    throw new IllegalStateException("Failed to adapt attributes on main thread", e);
-                }
-            }
-
-            final List<Attribute> attributes = Lists.newArrayList();
-            final AttributeSettings settings = plugin.getSettings().getSynchronization().getAttributes();
-            Registry.ATTRIBUTE.forEach(id -> {
-                final AttributeInstance instance = player.getAttribute(id);
-                if (settings.isIgnoredAttribute(id.getKey().toString()) || instance == null) {
-                    return; // We don't sync attributes not marked as to be synced
-                }
-                attributes.add(adapt(instance, settings));
+            // Attributes must be read on the thread that owns the player (the main thread on Spigot/Paper,
+            // or the player's region thread on Folia); hop to it if we aren't already there.
+            return ((BukkitHuskSync) plugin).computeOnEntityThread(player, () -> {
+                final List<Attribute> attributes = Lists.newArrayList();
+                final AttributeSettings settings = plugin.getSettings().getSynchronization().getAttributes();
+                Registry.ATTRIBUTE.forEach(id -> {
+                    final AttributeInstance instance = player.getAttribute(id);
+                    if (settings.isIgnoredAttribute(id.getKey().toString()) || instance == null) {
+                        return; // We don't sync attributes not marked as to be synced
+                    }
+                    attributes.add(adapt(instance, settings));
+                });
+                return new BukkitData.Attributes(attributes);
             });
-            return new BukkitData.Attributes(attributes);
         }
 
         public Optional<Attribute> getAttribute(@NotNull org.bukkit.attribute.Attribute id) {
@@ -657,18 +652,7 @@ public abstract class BukkitData implements Data {
 
         @Override
         public void apply(@NotNull BukkitUser user, @NotNull BukkitHuskSync plugin) throws IllegalStateException {
-            if (!Bukkit.isPrimaryThread()) {
-                try {
-                    Bukkit.getScheduler().callSyncMethod(plugin, () -> {
-                        this.apply(user, plugin);
-                        return null;
-                    }).get();
-                    return;
-                } catch (Exception e) {
-                    throw new IllegalStateException("Failed to apply attributes on main thread", e);
-                }
-            }
-
+            // Always invoked on the player's owning thread (see UserDataHolder#applySnapshot / #setData)
             final AttributeSettings settings = plugin.getSettings().getSynchronization().getAttributes();
             Registry.ATTRIBUTE.forEach(id -> {
                 if (settings.isIgnoredAttribute(id.getKey().toString())) {
@@ -727,14 +711,7 @@ public abstract class BukkitData implements Data {
         @Override
         @SuppressWarnings("deprecation")
         public void apply(@NotNull BukkitUser user, @NotNull BukkitHuskSync plugin) throws IllegalStateException {
-            if (!Bukkit.isPrimaryThread()) {
-                try {
-                    Bukkit.getScheduler().callSyncMethod(plugin, () -> { this.apply(user, plugin); return null; }).get();
-                    return;
-                } catch (Exception e) {
-                    throw new IllegalStateException("Failed to apply health on main thread", e);
-                }
-            }
+            // Always invoked on the player's owning thread (see UserDataHolder#applySnapshot / #setData)
             final Player player = user.getPlayer();
 
             // Set health

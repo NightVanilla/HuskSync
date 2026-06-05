@@ -64,6 +64,7 @@ import net.william278.toilet.Toilet;
 import net.william278.uniform.Uniform;
 import net.william278.uniform.bukkit.BukkitUniform;
 import org.bstats.bukkit.Metrics;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.map.MapView;
 import org.bukkit.plugin.Plugin;
@@ -77,6 +78,8 @@ import space.arim.morepaperlib.scheduling.RegionalScheduler;
 
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -386,6 +389,38 @@ public class BukkitHuskSync extends JavaPlugin implements HuskSync, BukkitTask.S
     @NotNull
     public AttachedScheduler getUserSyncScheduler(@NotNull UserDataHolder user) {
         return getScheduler().entitySpecificScheduler(((BukkitUser) user).getPlayer());
+    }
+
+    /**
+     * Run the supplied task on the thread that owns the given entity - the main server thread on
+     * Spigot/Paper, or the entity's owning region thread on Folia - and return its result.
+     * <p>
+     * If the current thread already owns the entity, the supplier runs inline. Otherwise it is
+     * scheduled on the entity's scheduler and the calling thread blocks until it completes, so this
+     * must only be invoked from an asynchronous (non-tick) thread when the entity is not owned by the
+     * current region.
+     *
+     * @param entity   the entity whose owning thread the supplier should run on
+     * @param supplier the task to run
+     * @param <T>      the type of the result
+     * @return the value computed by the supplier
+     */
+    public <T> T computeOnEntityThread(@NotNull Entity entity, @NotNull Supplier<T> supplier) {
+        // If we already own the entity, or we can no longer safely schedule (e.g. during shutdown, when
+        // region schedulers may be stopping and blocking on one could hang), run inline instead of hopping.
+        if (disabling || !isEnabled() || getServer().isOwnedByCurrentRegion(entity)) {
+            return supplier.get();
+        }
+        final CompletableFuture<T> future = new CompletableFuture<>();
+        getScheduler().entitySpecificScheduler(entity).run(() -> {
+            try {
+                future.complete(supplier.get());
+            } catch (Throwable e) {
+                future.completeExceptionally(e);
+            }
+        }, () -> future.completeExceptionally(new IllegalStateException(
+                "Entity was retired before the scheduled task could run")));
+        return future.join();
     }
 
     @Override
