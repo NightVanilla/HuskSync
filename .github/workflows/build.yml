@@ -8,11 +8,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Set up JDK 25
+      - name: Set up JDKs (21 launcher + 25 toolchain)
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '25'
+          # 25 is listed first so 21 (last) becomes the default JAVA_HOME / Gradle launcher; the
+          # Fabric preprocessor only runs under 21, while the 26.1+ targets use the 25 toolchain.
+          java-version: |
+            25
+            21
           cache: gradle
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
