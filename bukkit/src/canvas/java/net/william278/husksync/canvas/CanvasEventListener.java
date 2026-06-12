@@ -84,11 +84,16 @@ public class CanvasEventListener extends PaperEventListener {
     private void logCanvasPlatform() {
         final RegionThreadingTickManager tickManager = getPlugin().getServer().getRegionThreadingTickRateManager();
         final RegionThreadingTickManager.RegionHandle globalRegion = tickManager.getGlobalRegionHandle();
-        getPlugin().log(Level.INFO, String.format(
-                "Canvas server detected! Enabled the HuskSync Canvas integration " +
-                "(tick rate: %s, global region ticking game elements: %s)",
-                tickManager.getTickRate(), globalRegion.doesRunGameElements()
-        ));
+        try {
+            getPlugin().log(Level.INFO, String.format(
+                    "Canvas server detected! Enabled the HuskSync Canvas integration " +
+                    "(tick rate: %s, global region ticking game elements: %s)",
+                    tickManager.getTickRate(), globalRegion.doesRunGameElements()
+            ));
+        } catch (IllegalStateException e) {
+            getPlugin().log(Level.INFO, "Canvas server detected! Enabled the HuskSync Canvas integration " +
+                    "(tick rate: " + tickManager.getTickRate() + ")");
+        }
     }
 
     /**
