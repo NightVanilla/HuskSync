@@ -21,6 +21,10 @@ package net.william278.husksync;
 
 import net.kyori.adventure.audience.Audience;
 import net.william278.desertwell.util.Version;
+//#if MC>=260102
+import net.william278.husksync.canvas.CanvasEventListener;
+import net.william278.husksync.canvas.CanvasUtil;
+//#endif
 import net.william278.husksync.listener.BukkitEventListener;
 import net.william278.husksync.listener.PaperEventListener;
 import net.william278.uniform.Uniform;
@@ -36,6 +40,12 @@ public class PaperHuskSync extends BukkitHuskSync {
     @NotNull
     @Override
     protected BukkitEventListener createEventListener() {
+        //#if MC>=260102
+        // Use Canvas' async, region threading-aware events where the server provides them
+        if (CanvasUtil.isCanvasServer()) {
+            return new CanvasEventListener(this);
+        }
+        //#endif
         return new PaperEventListener(this);
     }
 

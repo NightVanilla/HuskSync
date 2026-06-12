@@ -39,6 +39,8 @@ locales:
   list_page_jumper_group_separator: '…'
   save_cause_disconnect: '断开连接'
   save_cause_world_save: '保存世界'
+  save_cause_player_save: '保存玩家'
+  save_cause_respawn: '重生'
   save_cause_death: '死亡'
   save_cause_server_shutdown: '服务器关闭'
   save_cause_save_command: '保存命令'

@@ -293,6 +293,21 @@ public class Settings {
             }
         }
 
+        @Comment("Configuration for the Canvas (canvasmc.io) server integration. Only used on Canvas servers")
+        private CanvasSettings canvas = new CanvasSettings();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class CanvasSettings {
+            @Comment({"Whether to create a snapshot for users when Canvas saves their player data (e.g. during autosaves).",
+                    "When enabled, this supersedes save_on_world_save snapshots on Canvas servers (region-safe equivalent)."})
+            private boolean saveOnPlayerSave = true;
+
+            @Comment("Whether to create a snapshot for users when they respawn after dying (fired in the correct region context)")
+            private boolean saveOnRespawn = false;
+        }
+
         @Comment("Whether to use the snappy data compression algorithm. Keep on unless you know what you're doing")
         private boolean compressData = true;
 

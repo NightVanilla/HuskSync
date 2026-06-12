@@ -112,6 +112,13 @@ synchronization:
     save_empty_items: true
     # Whether dead players who log out and log in to a different server should have their items saved.
     sync_dead_players_changing_server: true
+  # Configuration for the Canvas (canvasmc.io) server integration. Only used on Canvas servers
+  canvas:
+    # Whether to create a snapshot for users when Canvas saves their player data (e.g. during autosaves).
+    # When enabled, this supersedes save_on_world_save snapshots on Canvas servers (region-safe equivalent).
+    save_on_player_save: true
+    # Whether to create a snapshot for users when they respawn after dying (fired in the correct region context)
+    save_on_respawn: false
   # Whether to use the snappy data compression algorithm. Keep on unless you know what you're doing
   compress_data: true
   # Where to display sync notifications (ACTION_BAR, CHAT or NONE)
