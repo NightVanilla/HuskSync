@@ -162,7 +162,14 @@ public class BukkitHuskSync extends JavaPlugin implements HuskSync, BukkitTask.S
         // Prepare data adapter
         initialize("data adapter", (plugin) -> {
             if (settings.getSynchronization().isCompressData()) {
-                dataAdapter = new SnappyGsonAdapter(this);
+                try {
+                    dataAdapter = new SnappyGsonAdapter(this);
+                } catch (Throwable e) {
+                    log(Level.WARNING, "Snappy native library could not be loaded (no snappyjava in java.library.path). " +
+                            "Falling back to uncompressed GsonAdapter. " +
+                            "Set compress-data: false in config.yml to suppress this warning.");
+                    dataAdapter = new GsonAdapter(this);
+                }
             } else {
                 dataAdapter = new GsonAdapter(this);
             }

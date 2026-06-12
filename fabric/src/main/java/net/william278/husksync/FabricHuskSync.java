@@ -171,7 +171,14 @@ public class FabricHuskSync implements DedicatedServerModInitializer, HuskSync, 
         // Prepare data adapter
         initialize("data adapter", (plugin) -> {
             if (getSettings().getSynchronization().isCompressData()) {
-                this.dataAdapter = new SnappyGsonAdapter(this);
+                try {
+                    this.dataAdapter = new SnappyGsonAdapter(this);
+                } catch (Throwable e) {
+                    log(Level.WARNING, "Snappy native library could not be loaded (no snappyjava in java.library.path). " +
+                            "Falling back to uncompressed GsonAdapter. " +
+                            "Set compress-data: false in config.yml to suppress this warning.");
+                    this.dataAdapter = new GsonAdapter(this);
+                }
             } else {
                 this.dataAdapter = new GsonAdapter(this);
             }
