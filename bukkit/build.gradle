@@ -20,7 +20,13 @@ dependencies {
     implementation 'space.arim.morepaperlib:morepaperlib:0.4.4'
     implementation 'de.tr7zw:item-nbt-api:2.15.7'
 
-    compileOnly "io.papermc.paper:paper-api:${paper_api_version}"
+    if (project.hasProperty('canvas_api_version')) {
+        // Canvas (canvasmc.io) targets compile against the Canvas API - a superset of the Paper API
+        // that adds Canvas' region threading APIs (see net.william278.husksync.canvas)
+        compileOnly "io.canvasmc.canvas:canvas-api:${canvas_api_version}"
+    } else {
+        compileOnly "io.papermc.paper:paper-api:${paper_api_version}"
+    }
     compileOnly 'com.github.retrooper:packetevents-spigot:2.10.1'
     compileOnly 'com.github.dmulloy2:ProtocolLib:5.3.0'
     compileOnly 'org.projectlombok:lombok:1.18.42'
@@ -50,6 +56,10 @@ processResources {
 
 sourceSets.main {
     java.srcDirs '../src/main/java'
+    if (project.hasProperty('canvas_api_version')) {
+        // Canvas-only sources; call sites in shared code are guarded with //#if MC>=260102
+        java.srcDirs '../src/canvas/java'
+    }
     resources.srcDirs '../src/main/resources'
 }
 javadoc.setSource('./build/generated/preprocessed/main/java')

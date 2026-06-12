@@ -39,6 +39,8 @@ locales:
   list_page_jumper_group_separator: '…'
   save_cause_disconnect: 'отключение с сервера'
   save_cause_world_save: 'сохранение мира'
+  save_cause_player_save: 'сохранение игрока'
+  save_cause_respawn: 'возрождение'
   save_cause_death: 'смерть'
   save_cause_server_shutdown: 'отключение сервера'
   save_cause_save_command: 'save command'

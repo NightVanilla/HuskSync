@@ -39,6 +39,8 @@ locales:
   list_page_jumper_group_separator: '…'
   save_cause_disconnect: 'disconnect'
   save_cause_world_save: 'world save'
+  save_cause_player_save: 'player save'
+  save_cause_respawn: 'respawn'
   save_cause_death: 'death'
   save_cause_server_shutdown: 'server shutdown'
   save_cause_save_command: 'save command'

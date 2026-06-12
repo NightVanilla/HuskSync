@@ -863,6 +863,18 @@ public class DataSnapshot {
         public static final SaveCause WORLD_SAVE = of("WORLD_SAVE");
 
         /**
+         * Indicates data saved when the server saved the user's player data (e.g., during an autosave).
+         * Created on Canvas servers through Canvas' async {@code PlayerSaveEvent}.
+         */
+        public static final SaveCause PLAYER_SAVE = of("PLAYER_SAVE");
+
+        /**
+         * Indicates data saved when the user respawned after dying.
+         * Created on Canvas servers through Canvas' async {@code PlayerPostRespawnAsyncEvent}.
+         */
+        public static final SaveCause RESPAWN = of("RESPAWN");
+
+        /**
          * Indicates data saved when the user died
          *
          * @since 2.1

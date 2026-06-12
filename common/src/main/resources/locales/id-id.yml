@@ -39,6 +39,8 @@ locales:
   list_page_jumper_group_separator: '…'
   save_cause_disconnect: 'memutuskan sambungan'
   save_cause_world_save: 'penyimpanan dunia'
+  save_cause_player_save: 'penyimpanan pemain'
+  save_cause_respawn: 'respawn'
   save_cause_death: 'kematian'
   save_cause_server_shutdown: 'pematian server'
   save_cause_save_command: 'save command'

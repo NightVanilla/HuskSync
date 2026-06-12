@@ -38,6 +38,8 @@ Data save causes, marked with a 🚩 flag, indicate what caused the data to be s
 
 - **disconnect**: Indicates data saved when a player disconnected from the server (either to change servers, or to log off)
 - **world save**: Indicates data saved when the world saved. This can be turned off in `config.yml` by setting `save_on_world_save` to false under `synchronization`.
+- **player save**: Indicates data saved when a Canvas server saved the player's data (e.g. during an autosave). This can be turned off in `config.yml` by setting `save_on_player_save` to false under `synchronization.canvas`. (Canvas servers only)
+- **respawn**: Indicates data saved when the player respawned after dying. This can be turned on in `config.yml` by setting `save_on_respawn` to true under `synchronization.canvas`. (Canvas servers only)
 - **server shutdown**: Indicates data saved when the server shut down
 - **inventory command**: Indicates data was saved by editing inventory contents via the `/inventory` command
 - **enderchest command**: Indicates data was saved by editing Ender Chest contents via the `/enderchest` command
