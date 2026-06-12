@@ -29,6 +29,12 @@ public class SnappyGsonAdapter extends GsonAdapter {
 
     public SnappyGsonAdapter(@NotNull HuskSync plugin) {
         super(plugin);
+        // Eagerly verify the native library is available; throws if not
+        try {
+            Snappy.compress(new byte[0]);
+        } catch (IOException e) {
+            throw new IllegalStateException("Snappy native library is available but compress test failed", e);
+        }
     }
 
     @Override
