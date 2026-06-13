@@ -25,6 +25,7 @@ ext {
     set 'postgres_driver_version', postgres_driver_version.toString()
     set 'mongodb_driver_version', mongodb_driver_version.toString()
     set 'snappy_version', snappy_version.toString()
+    set 'iq80_snappy_version', iq80_snappy_version.toString()
 }
 
 publishing {

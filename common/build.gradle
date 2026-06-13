@@ -34,9 +34,11 @@ dependencies {
     compileOnly "org.postgresql:postgresql:$postgres_driver_version"
     compileOnly "org.mongodb:mongodb-driver-sync:$mongodb_driver_version"
     compileOnly "org.xerial.snappy:snappy-java:$snappy_version"
+    compileOnly "org.iq80.snappy:snappy:$iq80_snappy_version"
 
     testImplementation "redis.clients:jedis:$jedis_version"
     testImplementation "org.xerial.snappy:snappy-java:$snappy_version"
+    testImplementation "org.iq80.snappy:snappy:$iq80_snappy_version"
     testImplementation 'com.google.guava:guava:33.5.0-jre'
     testImplementation 'com.github.plan-player-analytics:Plan:5.6.2965'
     testCompileOnly 'de.exlll:configlib-yaml:4.6.4'
