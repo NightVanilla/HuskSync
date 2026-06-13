@@ -37,6 +37,11 @@ import java.util.logging.Level;
  * Crucially, this means a server that cannot use the native library never silently degrades to the
  * uncompressed {@link GsonAdapter}, which would be unable to read existing compressed snapshots and
  * could overwrite them with corrupt/empty data.
+ * <p>
+ * On read, this adapter also tolerates snapshots that were stored uncompressed (e.g. while
+ * 'compress-data' was off, or by an older build that fell back to the plain {@link GsonAdapter}):
+ * if Snappy decompression fails but the bytes are raw JSON, they are recovered as-is rather than
+ * failing the data load, and are re-stored compressed on the snapshot's next save.
  */
 public class SnappyGsonAdapter extends GsonAdapter {
 
@@ -111,8 +116,31 @@ public class SnappyGsonAdapter extends GsonAdapter {
                     ? org.xerial.snappy.Snappy.uncompress(compressed)
                     : org.iq80.snappy.Snappy.uncompress(compressed, 0, compressed.length);
         } catch (Throwable e) {
+            // Some snapshots may have been stored uncompressed - e.g. while 'compress-data' was off,
+            // or by an older build that silently fell back to the plain GsonAdapter when the native
+            // Snappy library could not load. Snappy data never begins with a JSON token, so when the
+            // bytes already look like raw JSON, recover them as-is instead of failing the data load
+            // (and refusing the player their data). Such rows heal on their next, now-compressed save.
+            if (looksLikeUncompressedJson(compressed)) {
+                return compressed;
+            }
             throw new AdaptionException("Failed to decompress data through Snappy", e);
         }
+    }
+
+    // Returns whether the given bytes look like an uncompressed (raw UTF-8) JSON document rather than
+    // Snappy-compressed data. Snappy's raw block format begins with the uncompressed length as a
+    // varint; for any real snapshot (>= 128 bytes) that leading byte has its high bit set and so can
+    // never be an ASCII '{' or '[', letting a leading JSON token reliably flag uncompressed payloads.
+    // Package-private for testing.
+    static boolean looksLikeUncompressedJson(@NotNull byte[] data) {
+        for (byte b : data) {
+            if (b == ' ' || b == '\t' || b == '\n' || b == '\r') {
+                continue;
+            }
+            return b == '{' || b == '[';
+        }
+        return false;
     }
 
 }
