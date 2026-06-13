@@ -6,3 +6,4 @@ libraries:
   - 'org.postgresql:postgresql:${postgres_driver_version}'
   - 'org.mongodb:mongodb-driver-sync:${mongodb_driver_version}'
   - 'org.xerial.snappy:snappy-java:${snappy_version}'
+  - 'org.iq80.snappy:snappy:${iq80_snappy_version}'
