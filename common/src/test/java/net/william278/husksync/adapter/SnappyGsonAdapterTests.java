@@ -58,6 +58,27 @@ public class SnappyGsonAdapterTests {
     }
 
     @Test
+    @DisplayName("Native and pure-Java codecs are wire-compatible")
+    public void crossCodecRoundTripIsCompatible() throws Exception {
+        final byte[] original = utf8(sampleSnapshotJson());
+
+        // The fallback's safety guarantee: a snapshot compressed by one codec must decompress
+        // correctly through the other, so a server that can only use the pure-Java codec can still
+        // read data written natively (and vice versa) without corruption. This holds only while both
+        // libraries use the same Snappy raw block format; the round-trips below guard against a future
+        // version bump to an incompatible format (e.g. the Snappy framing format) silently breaking it.
+        final byte[] nativeCompressed = org.xerial.snappy.Snappy.compress(original);
+        Assertions.assertArrayEquals(original,
+                org.iq80.snappy.Snappy.uncompress(nativeCompressed, 0, nativeCompressed.length),
+                "Data compressed by native snappy-java must decompress through the pure-Java codec");
+
+        final byte[] iq80Compressed = org.iq80.snappy.Snappy.compress(original);
+        Assertions.assertArrayEquals(original,
+                org.xerial.snappy.Snappy.uncompress(iq80Compressed),
+                "Data compressed by the pure-Java codec must decompress through native snappy-java");
+    }
+
+    @Test
     @DisplayName("Does not treat corrupt or empty data as uncompressed")
     public void doesNotRecoverCorruptData() {
         Assertions.assertFalse(SnappyGsonAdapter.looksLikeUncompressedJson(new byte[]{0x42, 0x00, (byte) 0xff}),
