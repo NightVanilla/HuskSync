@@ -1,4 +1,4 @@
-<!--suppress ALL -->
+ <!--suppress ALL -->
 <p align="center">
     <img src="images/banner.png" alt="HuskSync" />
     <a href="https://github.com/WiIIiam278/HuskSync/actions/workflows/ci.yml">
